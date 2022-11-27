@@ -50,6 +50,7 @@ bool showAfterFinish=false;
 
 // GLOBALS
 int64 lastCPDiff = 0;
+int startIdx = -1;
 int preCPIdx = -1;
 array<Split> splits = {};
 uint totalCPs = 0; 
@@ -121,7 +122,6 @@ void Update(float dt)
 			&& playground.GameTerminals[0].UISequence_Current != CGamePlaygroundUIConfig::EUISequence::EndRound) )
 	{
 		// menu
-		preCPIdx = -1;
 		lastCPDiff = 0;
 		splits = {};
 		totalCPs = 0;
@@ -138,7 +138,10 @@ void Update(float dt)
 		if (scriptPlayer is null || player.CurrentLaunchedRespawnLandmarkIndex == uint(-1)) 
 		{
 			lastCPDiff = 0;
-			preCPIdx = -1;			
+			preCPIdx = -1;
+			startIdx = -1;
+			splits = {};
+			totalCPs = 0;
 			return;
 		}
 	}
@@ -150,6 +153,7 @@ void Update(float dt)
 		if (preCPIdx == -1)
 		{
 			preCPIdx = player.CurrentLaunchedRespawnLandmarkIndex;
+			startIdx = preCPIdx;
 			lastCPDiff = 0;
 			splits = {};
 			totalCPs =  getTotalCPs(playground);
@@ -161,6 +165,10 @@ void Update(float dt)
 			if (preCPIdx != int(player.CurrentLaunchedRespawnLandmarkIndex))
 			{
 				preCPIdx = player.CurrentLaunchedRespawnLandmarkIndex;
+				if (preCPIdx == startIdx) {
+					preCPIdx = -1;
+					return;
+				}
 				int64 diff = GetDiffPB();
 				if (diff !=invalidDiff)
 				{
